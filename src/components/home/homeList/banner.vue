@@ -20,6 +20,11 @@ export default{
     return {
       seed: 3000,
       bannerIndex: 0,
+      country: '',
+      cityList: '',
+      provinces: [],
+      citys: [],
+      ciList: [],
       dataList: []
     }
   },
@@ -29,6 +34,7 @@ export default{
   mounted() {
       setTimeout( () => {
         this.getBanner()
+        this.getCity()
       },20)
   },
   methods: {
@@ -39,6 +45,57 @@ export default{
       }).catch( (err) => {
         console.log(err)
       })
+    },
+    getCity() {
+      axios.get('https://way.jd.com/AladdinBigData/analyse_util_area?appkey=23740912888eb582b49ed8aae822da56&is_child=0')
+      .then( (res) => {
+        this.cityList = res.data.result.data[2];
+
+        this.country = this.cityList.text
+
+        for (let i in this.cityList.children) {
+
+          this.citys.push(this.cityList.children[i].children)
+
+          var provincesObj = {
+
+            province:this.cityList.children[i].text
+
+          }
+
+          this.provinces.push(provincesObj)
+        }    
+
+        for (let i = 0; i < this.provinces.length; i++) {
+
+          this.provinces[i].citys = this.abs(i)
+
+        }
+
+        var countryList = {
+
+          country: this.country,
+
+          provinces: this.provinces
+
+        }
+
+        localStorage.lastname = JSON.stringify(countryList)
+        console.log(JSON.parse(localStorage.lastname))
+
+        console.log(countryList)
+
+      }).catch( (err) => {
+        console.log(err)
+      })
+    },
+    abs(n) {
+      this.ciList = []
+      for(var i in this.citys[n]) {
+       this.ciList.push(this.citys[n][i].text)
+
+      }
+      return this.ciList
     },
     getBanner() {
       const banner_ul = this.$refs.banner_ul;
